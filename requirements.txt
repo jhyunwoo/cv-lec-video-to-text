@@ -1,0 +1,4 @@
+moviepy
+streamlink
+google-generativeai
+google-genai

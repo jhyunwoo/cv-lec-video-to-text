@@ -1,0 +1,269 @@
+I believe the homework is due on Thursday. And we're to do Thursday, and we'll be releasing the next one soon after that. Last time I left off, I had around here talking about matching. Since it's been two weeks, super quick overview, we've been talking about features. So after we extract key points, we derive these SIFT feature descriptors, and they will be used for various things. Now, the first thing we're going to talk about is using them to match images. We'll be translating these images and try to derive these features and try to match them in order to identify that two different images are similar, not based on the pixel intensities, but these features. But matching could be very inefficient. Each image could have multiple, many, many thousands of features, and we'll be going through every single one of them, and then making decisions is very inefficient. So what we'll be doing is trying to do them a little bit more efficiently, have some shortcuts. So what we're going to do first is, suppose we have a database of images, but we're not going to save the images, we're going to save the features. So imagine that these are just database images, and they all have different types of features. It's either the windows of different scales, and we'll be just plotting, just combining everything into a one big feature space. So if this is a SIFT feature, then it would be 128-dimensional feature. And what we're going to do is, given a new query image, try to identify which of these images in the database are most similar to the query image. We're not going to compare every single one of them, we're not going to compare this image, the query image, with this single image in the database. We're not going to do this sort of a one-point matching. What we're going to do is what we call the bag of words. So this is the index, the bag of your textbooks basically has a list of words, and it also shows the pages, the page numbers of which these words appear. So it says the driving lanes, page 85, Duval County, page 153 or something. So it's a way to kind of quickly move to the pages of which these words appear. So it's going to be adopted for text documents, an efficient way to find all pages on which a word occurs is to use an index. What we want to do is identify images, but we're not going to use words, we're going to use features or visual words. So instead of having words, we're going to have features or visual words, visual descriptors. And instead of having page numbers, we're going to have the images or their indices. So what we're going to do is what we can say here based off of this example is the pages with similar words must be about similar content. So if certain pages have certain words and some other pages have similar words, then those two pages must be about similar contents. Same thing, we're going to talk about images, we're going to compare images and the images have a similar visual words or basically descriptors, then we're going to say those images could be highly likely similar to each other. So using this, what we'll be doing is extracting all these images in the database. So these are all the images in the database, collect all the features, just plot them or not literally plotting them, but we're going to save them to a database. So this is not just, each point is not about an image, it is a collection of features. We don't exactly know which of these features come from which images, but we have these features flying around and we're going to try to group them together. So instead of having a query image feature comparing to every single one of them, what we're going to do is identify some representative, we also call them centroids or cluster centers, we're going to try to group them like this, grouping based off of their similarity. We're going to talk about clustering in the next set of slides. So suppose these are somewhat clustered, grouped into similar, I guess, features. So ones that are on this side of the boundary, we're going to say, oh, these are all belong to, let's say, cluster one. Ones that are on these boundaries are called from cluster two, and these are from cluster three. But there's different ways to identify this, I guess, the boss, the most representative one, centroids. I'm going to talk about them later on. So we're going to just treat them as some sort of a black box. We don't exactly know how this works when you talk about them. So we can imagine is that all these, let's say, these features, if you go back to their original patches, they're coming from the patches of different images. Suppose you go back to all their patches where these features originated from, they must be looking something like this. These are all coming from the same clusters, or maybe these are all coming from the same clusters. So this is possible because these features are good features, good descriptors. If these descriptors are not so, I guess it's something that is not as good as SIFT features or descriptors, then even if they are clustered like this in this feature space, even though they're similar to each other, if you actually look at their patches, they're the chance that they may be completely different. These are good features. That's why features that are closer to each other in this whatever features descriptor space is are happening to be really actually similar to each other within the image space. So people use the word space in a very abstract way. So image space means whenever they come from the image, so patches could be coming from images. This is a feature space. There could be some different spaces. So these features are coming from the image space. And I've been telling you from basically the first lecture that if we want to identify two patches in the image space that are similar, they must also be similar to each other. It must be even more apparent in the feature space. So if they're similar in the feature space, good features, assuming that they're good features, their patches are also similar. Exactly what we're observing here. So each group of patches belong to the same visual word. So these are some triangular, upside down triangular visual words. These are all some sort of rectangular ones. These are all some blob ones. So something like this. So visual words for indexing. We're going to be mapping high dimensional descriptors to top user words by quantizing the feature space. So quantizing just means rounding up and down, right? It just means that, oh, if they all belong here, I'm just going to call them one. Things that are here, I'm just going to call them three. Things that are here, I'm going to call them two. There could be many, many more. So this quantization process, it's a little bit different than what you may have heard from these days, but the idea is the same, just grouping them. Each cluster has a cluster center. These green ones are the centers. So determine which word to assign to a new image. So if there's a new query image, we're not going to be looking at these black dots, we're going to be looking at their cluster centers first. So we're going to look at these green dots. So if this comes, we're going to be comparing this one, two, and three centers, not the individual points. Once we identify the group which it belongs to, so this belongs to group three, because this happens to be very similar to these green dots. And then we're going to be doing the actual searching within this search space. So to compare features, only compare query to others in the same cluster, or just compare the word IDs. So just do this, and then we're going to be doing some saving process. So inverted file index. So this is the database of images, we're going to be collecting words. So remember that we had that index page back then, we had the words and then the page numbers. Exactly that. So these are some images, and these are also some sort of features. They're already clustered. So this belongs to cluster 23. Whatever this patch belongs to cluster 7. This belongs to 7, 7, 62, and so on. So imagine this has already been done. So what has been done is just assigning their corresponding cluster IDs. So index database images, map each word to image IDs that contain it. So word one. So whatever the images that have the word, the feature cluster one, then we're going to just put their image indices. So image three has cluster one. So we're going to say word one appears in image three. Word seven appears in image one and two. And we're going to be doing this for all the images. So it's like a map. When we say a map, it's basically two information just kind of having connections or relations. So this word 8, visual word 8, appears in image three and so on. What we can use now is if there's a new query image, we can also identify their clusters, right? So this happens to be, the new query image happens to be closer to that green dot, right? But green dot seven. So you go to that, look at that file index, inverted file index and say, oh, okay, so which within the database, which of these images have the word, visual word seven? Very easy to find out, right? Because all we need to do is just go to index seven and then look at the corresponding image IDs. So image one and two happen to be having the same word seven as this query image, okay? So let's look at image one and two. They kind of look, so they do have the word seven and seven here, okay? And it's not surprising, right? These images have this golden gate bridge. So, and this feature is coming from the golden gate bridge. So, you know, these two images with the golden gate bridge will be here, okay? And the word 91 coming from the
+ that you have these bag of words.
+So these are kind of given to you.
+This is your kind of like the gradients in a way.
+So what we can do is start comparing images
+based off of these numbers.
+So how do we compare these two numbers?
+Look at their bag of word features.
+This itself is an image level feature.
+So what I mean by the image level,
+it means it's a feature that describes the entire image,
+not the patch.
+So in a way, it's a distribution
+of these bag of words features.
+So this image happens to have the highest response,
+I guess, in feature two,
+and some magnitude in feature four.
+Don't exactly have to know what they represent,
+as long as they're consistent.
+As long as you say all these images
+are going to be looking at the same clusters,
+then we just have to look at the distribution.
+So we can use this to measure the similarity of images.
+And this is one quick, I guess, a preview
+of a way to compute the similarity.
+So similarity of images measured
+as normalized scalar product.
+So basically, the inner product
+is another way to write down the inner product.
+So it's another way to write the inner product.
+So DI, so this is the one of the,
+we're going to be comparing two features, two vectors,
+D and Q.
+DI is the ith element of the vector D,
+and then QI is the ith element of vector Q.
+So different ways of just writing the inner product
+or a dot product.
+So the formula is as follows.
+It's basically the cosine similarity.
+We compare the inner product,
+but we're also going to be scaling them
+within these lengths.
+So these are the L2 norms, right?
+You can write two at the bottom
+to be more strict about the formula, about notation.
+But if there's nothing written,
+basically assume it's an L2 norm.
+So what we do is first identify the kind of similarity,
+and then we're going to make sure that,
+oh, these values, the reason why we do this,
+if you think about this,
+basically this normalization process,
+basically we're going to try to not care too much
+about the overall value, the magnitude.
+This value is going to be extremely high
+if just the numbers based off of the magnitudes.
+Instead of one, eight, one, four,
+what if it's like 100 and 800, 100 and 400?
+Whatever vectors you do the inner product with,
+this value is going to be high,
+but it's not because they're similar,
+it's just because the magnitudes are high.
+I don't care about the magnitudes,
+I just want the similarity of the distribution shapes.
+I don't want the magnitude to be determining
+the amount of similarity, I want to look at their shapes.
+So what this does is if that vector,
+let's say that this vector D has like 100, 800,
+and so on, if their magnitudes are large,
+this value is also going to be extremely large,
+because it's a really, really long vector.
+So it's a way to kind of scale down.
+If the vector is large,
+then we're going to divide it by a large number,
+such that the overall value is going to be within certain range.
+And that process is typically called the normalization,
+or sometimes called the standardization.
+So bag of words, very common term.
+Pros, advantages and disadvantages.
+Flexible to geometry, deformation and viewpoints,
+meaning we don't really care about how this looks,
+we're just going to look at it,
+basically break it down into pieces.
+As long as they appear somewhere,
+as long as we have this composition of these features,
+then we're good.
+And compact summary of image content
+basically means that these features are extremely compact.
+But basic models ignores the geometry.
+So if we don't do anything, what happens is
+we don't care how they appear, as long as they appear,
+it's going to be okay.
+So what I mean by that is,
+it doesn't matter where these eyes appear.
+The eyes could be here, the right eye could be here,
+it doesn't matter, right?
+Because as long as these patches,
+so this does not care about the locations,
+it just cares about the appearance,
+whether it is there or not,
+which could be a good thing and a bad thing.
+And it's also difficult to identify
+the optimal vocabulary size.
+What I mean by the vocabulary size
+is the number of clusters.
+This looks pretty intuitive,
+because it's just an example,
+but if we go all the way back to these points,
+if we go all the way back to these points,
+how do you determine the number of groups?
+That's always the most difficult part.
+We're going to talk about grouping in the next slides.
+So this is a somewhat heuristic process.
+Heuristic means you just try and find out,
+experimentally just find out.
+The background and foreground mixed
+when that covers the whole image.
+Not too important.
+So I guess this set of slides were very long,
+but it's for a good reason.
+It's very, very, very fundamental vision-specific
+knowledge that you kind of have to know,
+this overall process.
+So basically the foundation of the modern vision,
+even though we don't really look at it this way anymore,
+still this pipeline is extremely important.
+So key point detection,
+this is where we looked at the corners,
+various corner detector,
+blobs, right?
+The difference of Gaussian, Laplacian of Gaussian,
+all that stuff,
+to be able to identify these locations of interesting things.
+That's what we did first.
+And then using that blob detector,
+we actually identified the scale,
+how big we should be looking at,
+the size of the window that we should be looking at.
+And then we use this SIFT feature
+to basically derive a set of numbers,
+descriptors,
+a way to represent,
+trying to describe these set of pixels
+into a set of numbers,
+and using them for clustering, matching, and so on.
+So,
+finally done with these slides,
+we're going to move on to the next one,
+which are on learners right now.
+We're going to move on to grouping.
+But before we do that,
+let's take attendance.
+These grouping slides,
+it says grouping,
+but it talks about edges and lines and circles
+and segments and tile.
+We're grouping that,
+oh, we have just put a bunch of points
+and we're going to try to identify
+things that are similar
+and then just cluster them together.
+That is true.
+We'll eventually get there.
+But this edges and lines,
+the things that we've been looking at,
+we're going to try to see it
+from a slightly different perspective.
+Also a very unique set of methods
+that you'll be observing.
+So first,
+we're going to be looking at grouping edges.
+So the real actual edge detection,
+we have been kind of detecting edges,
+using the gradients,
+X and Y and IX and IY and so on.
+The goal is to map image
+from 2D array of pixels
+to set of curves or line segments
+or contours.
+Why?
+Because it's one of the most basic features
+visually and cognitively,
+it's a very important cube.
+So we're going to be looking at strong gradients
+and then try to connect the dots.
+Okay?
+So designing an edge detector,
+criteria for good edge detector.
+So good categorization,
+what we want is to be able to say
+something is an edge and not an edge.
+Okay?
+When we use a gradient,
+it doesn't really give you zero ones,
+right?
+It gives you the magnitude of the gradient.
+We need to decide which ones are real
+and which ones are not real,
+basically which ones are good and bad.
+Good localization.
+Detect edges as close as possible to true edge.
+So unless you have a super extremely sharp edge
+in an image,
+okay?
+Typically you're going to be looking at
+a very rough and blurred edge,
+but I want so it can be a very blurred edge.
+I want the edge that I detect
+to go right through that edge.
+Okay?
+Regardless of the size.
+Detect edges as close as possible to true edge.
+Return one representative for each true edge point.
+So we could be having multiple ones.
+I just want a one representative one.
+Okay?
+So cues.
+Bottom up differences in color intensity,
+B-speed gradients.
+And top down continuating.
+What this means is you could be looking at the edge
+as a group of these small gradients.
+Okay?
+And then bottom up process and connecting them.
+Or you can look at it from just some sort of a high level knowledge.
+Not too important from what we'll be discussing.
+So these are some ground truths.
+Okay?
+Edge detection results.
+So this is the ground truth meaning the solution.
+Gold standard.
+Some person has drawn it.
+Okay?
+But this notion of ground truth is also very subjective.
+Meaning as long as some,
+if someone tells me to draw an edge,
+okay?
+It could be completely different.
+But it could also be a ground truth.
+Okay?
+So gotta be very careful about the definition of ground truth.
+The solution.
+It's not really a solution.
+It could be one of the solutions.
+Okay?
+But something that we're trying to target.
+I guess the nature of the edge that has been drawn
+is something that we're trying to target.
+Not exactly that this is the only set of edges
+that you can possibly have in this image.
+That's not really what it means.
+Basically the type of edge now and edge
+is something that is possible to humans.
+And these are all different types of edges.
+Also, this could be very subjective.
+And what we're going to talk about is the bottom one,
+which doesn't look that good,
+but this is something that we can easily implement
+in our cloud policy.
+And this is some other method.
+Also, depending on your preference,
+could be that this could be the best.
+Maybe some people may say,
+oh, I want some more details.
+Okay?
+So this entire process of edge detection,
+evalu
+ we're going to be having a very hard time identifying edges. So this is again an edge. They're very gradually increasing, but obviously definitely increasing part. If you take the gradient, it's going to be hard to identify the point at which the p-cap is, the most drastic gradient changing the intensity is happening. So what do we do? Very simple. Most basic way to deal with this is to remove noise. So difference filters respond strongly to noise. By difference filter just means the kernel that looks like negative one and positive one. This is basically the simple derivative. If we just do this for the entire image, maybe one dimensional, that's really just the simple textbook definition of the gradient. Image noise results in pixels that look very different from their neighbors. Generally, the larger the noise, the stronger the response. So what can we do about it? We're going to be doing the smoothing. The example that you saw, apply this Gaussian kernel. And what do we have? Smooth image. Noises are gone, although the edge is now not as sharp as before. It's as expected, right? We are smoothing the image. So we removed the noise and we kind of smooth out the sharp edge signal that we had. But this is actually a much better. So then what we can do is taking the derivative of the smooth signal. The peak is extremely obvious. Instead of just going from here to here, smooth out the image and then taking the edge. So all these edge detection process that I'm going to be talking about smoothing is essential. It's going to appear everywhere. There's a different way to talk about this. You know that your convolution is associative. So instead of convolving the image with the kernel and then taking the derivative, we take the derivative of the Gaussian function. We've seen this before, right? Take the derivative of the Gaussian and just apply this to the image. So why is this useful? Convolution is a pretty expensive process, even though it's parallelizable. So what happened here is this is the original image. We applied this to the image and we applied this, the gradient process, to the entire, let's say 2000 numbers. So we had to, something has been applied to this original signal twice. But here what happened is this gradient process applied to this small short signal Gaussian function signal. After this has been done, we just have to apply this once to the image. So efficiency is what happened. So this saves us one expensive operation of doing some sort of filtering process to the original image. This has to be done once. It's a very simple derivative process. So canning edge detector filter images with the derivative of Gaussian. Basically smoothing the image and then taking the derivative, same thing. Find the magnitude and the orientation of the gradient. We know how this works. Basically finding the tangent and the magnitude m. We know how this works. Then the threshold. Determine which local maxima from filter outputs are actually edges. What does it mean by local maxima? Just look at it locally. They have the entire image. Just looking at it locally and identifying the maximum value. Is it maximum within this small region, locally speaking? So determine which of these things. We just look at these edges locally. We're going to be determining whether they are above a certain threshold, meaning strong signal of the edges. And that will tell us whether they're actual good edges or not. The non-maximal suppression comes back again. Also write NMS for this. Dimming out the wide ridges down to a single pixel width. So this is a pretty strong signal to us, but the threshold is not going to be just... What we want is say, oh, this location is the edge. But in order for that to happen, we need to have a threshold that just barely cuts here and then only leaves a single point. But we can't just have such perfect thresholds. Typically, threshold is something that has been fixed and should be applied everywhere. So if we say, oh, whatever is above this threshold, we're going to call them edges. Now what happens is this entire range is going to be considered as an edge. So if you look at it from an image, suppose there's some sharp edge like this, but it's been smoothed out. So what's going to happen is not just a single pixel is going to go through this. It's going to have a pretty thick ridge. It's going to have all these clusters of pixels are all potentially edges. What we want is to cut them down, thin it out into a single pixel by doing what? Non-maximal suppression. I didn't exactly talk too much about the non-maximal suppression process, but we know how this works, so different ways to implement. Linking and thresholding. So now this is another thing. It's also called the hysteresis. The edges are not going to be continuous as you want due to various reasons, noises and so on. So even though the edges should look perfectly continuous, it may have some discontinuity. What do we do? Maybe there should be an edge, but this small segment, maybe the threshold was just barely not high enough. So what we can do is, okay, if there's a potential connection, maybe we can have a different standard for the threshold, maybe lower it a little bit and see if this connects. If this actually makes a connection, then okay, it just happened to be a small segment where the edge score was relatively low, so we're going to try to connect them. So linking and thresholding, this heuristic algorithmic process is just abstractly called the hysteresis and just a way to do the post-processing. So in MATLAB, what you can do is just call the image Lena, whatever, and apply this Gaussian's derivative of Gaussian filters that you know, and this is what we get. This is the magnitude. The magnitude does not tell you exactly the direction of it, but almost just tells you the strength of the gradients, right? That's really, that's it. This is just the edge detection that you know. But the difference is we want to actually do one or zero. We just want to say, instead of having some magnitude determining the edge or not, I want to eventually make the decision saying that certain pixels are actually So from here, okay, these are not exactly ones. We have to make a decision. If it's not strong enough, we're not going to call them an edge, and we don't want this thick line to be an edge. I just want a single line going through something like this. So it's not clean. There are disconnections. Maybe the thresholds are too low. So it's trying to detect all these possible background, the edges that I can't even see. That's where thresholding happens. So thresholding the gradients with the lower threshold. So we're more liberal about determining, deciding whether that pixel should be considered as an edge. We're more conservative. We're increasing the threshold. Unless the score is reasonably high, pretty high, I'm not going to call that an edge. There's a hysteresis where that happens is maybe something like this. It doesn't mean that this butterfly actually does not have an edge. It should. But for some reason, maybe the background was looking very similar to this, the edge color. We want to somehow connect it. So connecting this through some iterative process is the hysteresis. The effect of sigma. So as the sigma is the kind of the wideness of a Gaussian function, right? So if this is high, the distribution looks wider and wider, and it looks becomes more, the strength of the smoothing increases as well. So the original one. Two examples. So one edge detection result and the other edge detection result. The question that I have at the bottom is increasing the gradient thresholding or increasing the sigma. So there are two ways to manipulate the results. It's like tuning. It's up to you to identify your preference and then steer towards it. So I can either increase the sigma and smooth it even more and then try removing, let's say these. I don't want these edges. These are pretty strong edges, but I don't want this sort of information. I want something that may be lower frequency. This is just almost like a noise. I can either increase the sigma, smooth out the image, or I can be more strict about the threshold. So basically, in other words, if I want to remove these edges, I can either smooth it up more so it doesn't even look like an edge anymore, or I can still get this and then increase the threshold so that it just kind of disappears. So this is the canny edge detector with the sigma of ones, the canny edge detector with sigma of two. So large sigma detects large scale edges and small sigma detects fine edges. Very obvious, right? Defective noise. Where's the edge? I don't know why this appears again. Same idea. So the edge is a very quick, almost like a detour. We know exactly how this works. So there's nothing really special about this. What I want to talk about, things become interesting for lines. This is where potentially homework three or four is going to be about. So edges and lines are different. Edges are just really just changing the intensity or whatever. It doesn't have to be a straight line. The line that you're talking about here is a straight line. I want to be able to identify straight lines like this. I want to fit a line. I want to actually place a straight line as close as possible to these straight edge parts of these images. So you can also call them fitting. By fitting is we have a line. I want to place it at the right spot. I want to identify the line formula, which when you place it onto the image, it exactly is on top of the straight line. The hard part about is that it's not exactly a straight line always. Theoretically it should be a very straight line, but due to various reasons, we're still based off the edge detector result that we have based off of this canny edge detection result.
+ So y is the fitting line. So this is the actual line, right? So we're trying to identify m and b. It's a common m and b. So whatever x that I put here is gonna be on this line. So this is the y, whatever is on this line, y of the fitting line. And then this yi are the actual points. What am I doing? Taking the difference. In other words, whatever it is on this line, I'm going to be taking the direct vertical distance, or difference basically, and then square them, and then sum them up across all possible points that I have. In other words, this E, you can call it an error, okay, trying to find a line that goes through this such that the difference, these gaps between all these points are minimized in this way. There are different definitions of minimum. So it can be this sort of a distance, or it can be actual orthogonal distance, or talk about different ways. So you want to find a single line that explains all the points. There's another way, where the statistics comes from. What is statistics is just summary, right? You have data points. I want to describe this overall trend of these points that I have. And line is a very, very simple way to describe some sort of an event, data set, information. So varying ways to take this line fitting process. To us, it's really just having pixels and drawing a line. In some other fields, it could be a way to summarize the trend or the information that you have. This is a data set. I want to say, oh, I have these data sets. They're not perfect, but I want to be able to somehow describe them with what? A line. Because typically a line, things have linear relationship, x and y, has some sort of linear relationship. That means if you have many, many points, they're all going to be around whatever this line. What does that line do? That explains the information that you have. Now there's a linear algebra that comes. How do we actually compute m and b? I'm going to go through this step for the next 30 seconds and then see what happens. I can rewrite this summation as this. It's still a summation, but the way that I describe this mxi plus b is the inner product of two vectors. First vector is xi and one. The other is m and b. So mxi plus one times b, same thing. I'm going to rewrite it again. Instead of having a summation like this, I'm going to, I have, how many xi do I have? N of them. So I'm going to have a stack of them. I'm going to stack them like this, turning to a matrix, a stack of rows. Then what this does is computing all combinations of m's and b's. So mx1 times b, mx2 plus b, mx3 plus b, mxn plus b. It is computing all possible combinations. And what do I have on the right? These are all corresponding yi's. Then this entire thing is actually a what? It's a vector actually, right? So what do I have here? This is going to give me an mx1 plus b. Next row is mx2 plus b and so on. It's just a column vector, right? This is also a column vector. So what I actually have is column vector minus a column vector, which is just mx1 plus b minus y1, mx2 plus b minus y2. This is just a vectorization of all possible differences that I'll eventually be summing up. How do I sum them up? This is an L2 process. Squaring the L2 norm is the same as taking the squares and then summing them up. Taking the squares of every single element that I've just written down here, square them, and then L2 norm, I take the square root of it, but I take the square root of it again, so the square is gone. So this entire process is literally identical to this summation term. It's just written in a matrix times vector minus a vector, and then square of the L2 norm written like this. This is a matrix A, this is a vector P, and this is a vector Y. How do I know? It's a capitalized and bold base, so I know that this is a matrix, and it's a vector, and this is a vector. Very simple process. And I'll continue on from this set of slides on this Thursday.
